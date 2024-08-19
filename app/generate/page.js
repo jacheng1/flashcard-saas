@@ -1,5 +1,3 @@
-// Timestamp: 1:18:51
-
 'use client';
 
 import { db } from '@/firebase';
