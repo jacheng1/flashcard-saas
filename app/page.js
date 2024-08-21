@@ -1,11 +1,16 @@
 'use client'
-import Image from "next/image";
 import getStripe from '@/utils/get-stripe';
+import { useUser } from "@clerk/nextjs";
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { Container, AppBar, Toolbar, Typography, Button, Box, Grid } from '@mui/material';
 import Head from 'next/head'
+import toast from "react-hot-toast";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const {isLoaded, isSignedIn, user} = useUser();
+  const router = useRouter();
+
   const handleSubmit = async() => {
     const checkoutSession = await fetch('/api/checkout_session', {
       method: 'POST',
@@ -18,7 +23,6 @@ export default function Home() {
 
     if (checkoutSession.statusCode === 500) {
       console.error(checkoutSession.message);
-
       return;
     }
 
@@ -29,6 +33,15 @@ export default function Home() {
 
     if (error) {
       console.warn(error.message);
+    }
+  }
+
+  const generateFlashcards= ()=>{
+    if(isSignedIn){
+      router.push('/generate')
+    }
+    else{
+      toast.error('Please sign in to generate flashcards')
     }
   }
 
@@ -63,6 +76,7 @@ export default function Home() {
         variant="contained"
         color="primary"
         sx={{mt: 2}}
+        onClick={generateFlashcards}
       >
         Get Started
       </Button>
