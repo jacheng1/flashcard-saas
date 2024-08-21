@@ -6,6 +6,9 @@ import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 import { useSearchParams } from "next/navigation";
 import { Box, Button, Card, CardActionArea, CardContent, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Paper, TextField, Typography } from "@mui/material";
+import {ChevronLeft} from 'lucide-react';
+import { useRouter } from "next/navigation";
+
 
 export default function Flashcard() {
     const {isLoaded, isSignedIn, user} = useUser();
@@ -14,6 +17,7 @@ export default function Flashcard() {
 
     const searchParams = useSearchParams();
     const search = searchParams.get('id');
+    const router = useRouter();
 
     useEffect(() => {
         async function getFlashcard() {
@@ -46,10 +50,17 @@ export default function Flashcard() {
         return <></>;
     }
 
+    const back = () => { 
+        router.push('/flashcards');
+    }
+
     return (
         <Container maxWidth="100vw">
+            <Typography variant="h4" sx={{mt: 4}} borderBottom={"solid .2rem black"} display={"flex"} alignItems={"center"}>
+                  <ChevronLeft size={"3rem"} onClick={back} cursor={"pointer"}></ChevronLeft>{search} Flashcards
+            </Typography>
             <Grid container spacing={3} sx={{mt: 4}}>
-                            {flashcards.map((flashcard, index) => {
+                            {flashcards.map((flashcard, index) => (
                                 <Grid item xs={12} sm={6} md={4} key={index}>
                                     <Card>
                                         <CardActionArea onClick={() => handleCardClick(index)}>
@@ -105,7 +116,7 @@ export default function Flashcard() {
                                         </CardActionArea>
                                     </Card>
                                 </Grid>
-                            })}
+                            ))}
             </Grid>            
         </Container>
     )

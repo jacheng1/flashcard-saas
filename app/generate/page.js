@@ -6,6 +6,7 @@ import { Box, Button, Card, CardActionArea, CardContent, Container, Dialog, Dial
 import { writeBatch, doc, collection, setDoc, getDoc } from "firebase/firestore";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 export default function Generate() {
     const {isLoaded, isSignedIn, user} = useUser();
@@ -22,7 +23,10 @@ export default function Generate() {
             headers: {'Content-Type': 'application/json'},
             method: 'POST',
             body: text,
-        }).then((res) => res.json()).then((data) => setFlashcards(data))
+        }).then((res) => res.json()).then((data) => {
+            setFlashcards([...data]);
+            console.log(flashcards)
+        });
     }
 
     const handleCardClick = (id) => {
@@ -42,8 +46,7 @@ export default function Generate() {
 
     const saveFlashcards = async() => {
         if (!name) {
-            alert('Please enter a name');
-
+            toast.error('Please enter a name');
             return;
         }
 
@@ -55,8 +58,7 @@ export default function Generate() {
             const collections = docSnap.data().flashcards || [];
 
             if (collections.find((f) => f.name === name)) {
-                alert("Flashcard collection with the same name already exists.");
-
+                toast.error("Flashcard collection with the same name already exists.");
                 return;
             }
             else {
@@ -80,6 +82,10 @@ export default function Generate() {
 
         handleClose();
 
+        openCollections();
+    }
+
+    const openCollections=()=>{
         router.push('/flashcards');
     }
 
@@ -118,11 +124,14 @@ export default function Generate() {
                     </Button>
                 </Paper>
             </Box>
+            <Box display={"flex"} justifyContent={"flex-end"}>
+                <Button variant='contained' color='secondary' onClick={openCollections}>Show My Collections</Button>
+            </Box>
             {flashcards.length > 0 && (
                 <Box sx={{mt: 4}}>
-                    <Typography variant="h5">Flashcards Preview</Typography>
+                    <Typography variant="h5" component="h2" gutterBottom>Flashcards Preview</Typography>
                     <Grid container spacing={3}>
-                        {flashcards.map((flashcard, index) => {
+                         {flashcards.map((flashcard, index) => (
                             <Grid item xs={12} sm={6} md={4} key={index}>
                                 <Card>
                                     <CardActionArea onClick={() => handleCardClick(index)}>
@@ -178,7 +187,7 @@ export default function Generate() {
                                     </CardActionArea>
                                 </Card>
                             </Grid>
-                        })}
+            ))}
                     </Grid>
                     <Box sx={{mt: 4, display: 'flex', justifyContent: 'center'}}>
                         <Button variant='contained' color='secondary' onClick={handleOpen}>
